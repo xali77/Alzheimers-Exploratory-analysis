@@ -1,0 +1,171 @@
+---
+title: "Alzheimers Analysis"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+### Reg. No: 18BCE1327
+
+### Name: Mohammed Ali
+
+### DA3 / LAB9
+**Introduction**
+*Alzheimer's disease is an irreversible, progressive brain disorder that slowly destroys memory and thinking skills and, eventually, the ability to carry out the simplest tasks. In most people with the disease—those with the late-onset type—symptoms first appear in their mid-60s.*
+
+**The Dataset**
+```{r}
+#https://www.oasis-brains.org/files/oasis_cross-sectional.csv
+library(readxl)
+library(plotrix)
+library(ggplot2)
+library(ggcorrplot)
+library(dplyr)
+library(GGally)
+dd <- read.csv("C:/Users/pc/Desktop/sem5/DATA PROJECT/dd.csv")
+d1=na.omit(dd)
+
+summary(d1)
+head(d1)
+colnames(d1)
+
+```
+**Variable Description**
+
+Variable Name:  | Variable Description:
+---------------| ----------------------
+`ID`    | Identification
+`M/F`   | Gender (M if Male, F if Female)
+`Hand`  | Handedness
+`Age`   | Age in years 
+`EDUC`  | Years of education
+`SES`   | Socioeconomic Status
+`MMSE`  | Mini Mental State Examination
+`CDR`   | Clinical Dementia Rating
+`eTIV`  | Estimated Total Intracranial Volume
+`nWBV`  | Normalize Whole Brain Volume
+`ASF`   | Atlas Scaling Factor
+`Delay` | Delay
+`Visit` | Number of visits to the doctor
+`Group` | the state of the patient
+
+
+
+
+**Gender Distribution of the disease**
+
+```{r}
+library(plotrix)
+kk=table(d1$M.F)
+pie3D(kk,labels = c("Female","Male"),explode = 0.05)
+
+
+```
+
+
+*The number of female cases are more when compared to male*
+
+**Age distribution with respect to number of cases**
+
+```{r}
+k1=with(d1,table(Age))
+plot(k1,main="Age distribution",ylab ="Cases",col="Red")
+
+
+```
+
+
+*CDR which is the clinical dementia rating is a 5-point scale used to characterize six domains of cognitive and functional performance applicable to Alzheimer disease and related dementias: Memory, Orientation, Judgment & Problem Solving, Community Affairs, Home & Hobbies, and Personal Care. *
+
+Scale:  | Severity:
+--------| ---------
+`ID`    | Identification
+`0`     | Normal
+`0.5`   | Very Mild Dementia
+`1`     | Mild Dementia
+`2`     | Moderate Dementia
+`=>3`   | Severe Dementia
+
+
+**CDR distribution**
+
+```{r}
+barplot(table(d1$CDR),main="CDR Distribution",xlab ="Severity of CDR",ylab="Number of cases",col="dark green")
+
+```
+
+
+**CDR as per Age**
+
+```{r}
+ggplot(d1, aes(as.factor(CDR), Age))+
+  geom_boxplot(col = "blue")+
+  ggtitle("Severity of CDR according to Age")+
+  xlab("Severity")+
+  theme(plot.title = element_text(hjust = 1))
+
+```
+
+**CDR by Age and Gender**
+
+```{r}
+ggplot(d1, aes(as.factor(CDR), Age, fill = M.F))+
+  geom_boxplot(col="red")+
+  ggtitle("Degree of CDR by Age")+
+  xlab("CDR")+
+  theme(plot.title = element_text(hjust = .5))
+
+```
+
+**Number of patient as per their state **
+
+
+```{r}
+ggplot(d1, aes(Group, fill = as.factor(CDR)))+
+  geom_bar()+
+  ggtitle("count of the group of patients and their state")+
+  theme(plot.title = element_text(hjust = 1))
+```
+
+**Finding the relation between number of year in education and which group of Alzheimers**
+
+```{r}
+plot(table(d1$EDUC,d1$Group), col='light blue', main="relation between years of education and group")
+
+```
+
+
+*we can clearly see that people who were least educated had the majority in the demented category while on the other hand people with the highest number of years in education had the majority in non-demented form of alzheimers*
+
+
+**Correlation between all the columns**
+
+```{r}
+library(GGally)
+f<-d1
+f$Subject.ID=NULL
+f$Group=NULL
+f$MRI.ID=NULL
+f$Hand=NULL
+f$M.F=NULL
+ggcorr(f)
+```
+
+
+*The highest correlation exists between eTIV~ASF and Visits~MR.Delay*
+
+```{r}
+cor(d1$eTIV,d1$ASF)
+plot(d1$eTIV~d1$ASF)
+```
+
+*eTIV is a estimate of maximum premorbid brain size ASF is a one-parameter scaling factor that allows for comparison of the estimated total intracranial volume*
+
+
+
+```{r}
+cor(d1$Visit,d1$MR.Delay)
+plot(d1$Visit~d1$MR.Delay)
+
+```
